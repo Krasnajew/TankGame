@@ -3,6 +3,7 @@
 #include "normalbullet.h"
 #include <QGraphicsScene>
 #include "game.h"
+#include <QTimer>
 
 extern Game *game;
 
@@ -11,7 +12,6 @@ PlayerTank::PlayerTank(QGraphicsItem *parent):
 {
    setPixmap(QPixmap(":/images/yourtank.png"));
    setTransformOriginPoint(getWidth()/2, getHeight()/2);
-
 }
 
 void PlayerTank::hpBarMod()
@@ -19,6 +19,20 @@ void PlayerTank::hpBarMod()
     auto p = (hp*100)/hpMax;
     game->setHpBar(p);
 
+}
+
+void PlayerTank::takeDamage(int8_t damage)
+{
+    hp-=damage;
+    hpBarMod();
+    if(hp<=0)
+    {
+        emit yourDead();
+        scene()->removeItem(this);
+        return;
+    }
+    setPixmap((QPixmap(":/images/hittank.png")));
+    BaseTank::takeDamage(damage);
 }
 
 void PlayerTank::loadGun()
@@ -34,4 +48,9 @@ void PlayerTank::loadGun()
         return;
     }
     i++;
+}
+
+void PlayerTank::setPmap()
+{
+    setPixmap(QPixmap(":/images/yourtank.png"));
 }

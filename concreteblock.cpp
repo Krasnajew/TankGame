@@ -15,7 +15,6 @@ void ConcreteBlock::createBlock(QPointF pos)
 {
     ConcreteBlock *block = new ConcreteBlock();
     block->setPos(pos);
-    //scene()->addItem(block);
     game->scene->addItem(block);
 }
 

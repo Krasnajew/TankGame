@@ -1,11 +1,14 @@
 #ifndef SBENEMYTANK_H
 #define SBENEMYTANK_H
 
+#include "enemytank.h"
 
-class SBenemytank
+class SBEnemyTank: public EnemyTank
 {
 public:
-    SBenemytank();
+    SBEnemyTank(QGraphicsItem * parent =0);
+public slots:
+    virtual void setPmap();
 };
 
 #endif // SBENEMYTANK_H

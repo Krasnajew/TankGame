@@ -15,7 +15,6 @@ BaseTank::BaseTank(int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF GUN
 {
     bullet = nullptr;
     loaded = true;
-    //qDebug()<<"gunpoint: "<<gunPoint;
 }
 
 void BaseTank::move(Qt::Key dir)
@@ -42,7 +41,6 @@ void BaseTank::move(Qt::Key dir)
 
     if(collisionTest())
     {
-        //qDebug()<<"bip";
         setPos(temp);
     }
 }
@@ -50,12 +48,13 @@ void BaseTank::move(Qt::Key dir)
 void BaseTank::takeDamage(int8_t damage)
 {
 
-        hp-=damage;
-        if(hp<=0)
-        {
-            scene()->removeItem(this);
-            delete this;
-        }
+    if(hp>0)
+    {
+        QTimer *tim = new QTimer(this);
+        connect(tim, &QTimer::timeout, this, &BaseTank::setPmap);
+        tim->setSingleShot(true);
+        tim->start(200);
+    }
 
 }
 
@@ -83,10 +82,8 @@ void BaseTank::fire()
         }
 
 
-        //bullet->shot(pos()+gunPoint, this->rotation());
         QTimer *tim = new QTimer(this);
-        //tim->setSingleShot(true);
-        //tim->start(1000);
+
         connect(tim, &QTimer::timeout, this, &BaseTank::loadGun);
         tim->start(bullet->getReloadTime() * 10); //tim timeout 10 times and delete
     }
@@ -116,17 +113,7 @@ void BaseTank::reload(Qt::Key key)
 
 void BaseTank::loadGun()
 {
-    /*static int8_t i = 0;
-    game->setReloadBar(i*10);
-    if(i>=9)
-    {
-        game->setReloadBar(100);
-        i=0;
-        loaded = true;
-        delete sender();
-        return;
-    }
-    i++;*/
+
     static int8_t i = 0;
         if(i>=9)
         {
@@ -144,11 +131,10 @@ bool BaseTank::collisionTest()
     QList<QGraphicsItem*> colliding_items = this->collidingItems();
     bool flag = false;
     std::for_each(colliding_items.begin(),colliding_items.end(), [&flag](auto i){
-        /*if(typeid(*i) == typeid(DirtBlock) || typeid(*i) == typeid(SolidBlock)|| typeid(*i) == typeid(ConcreteBlock))
-        {
-            flag = true;
-        }*/
+
         if(dynamic_cast<BaseBlock*>(i) != nullptr) flag = true;
+        else if(dynamic_cast<PlayerTank*>(i) != nullptr) flag = true;
+        else if(dynamic_cast<BaseTank*>(i) != nullptr) flag = true;
     });
     if(flag)
     {

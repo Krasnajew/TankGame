@@ -1,15 +1,20 @@
 #include "enemytank.h"
 #include "playertank.h"
+#include "baseblock.h"
 #include <QRandomGenerator>
+#include "game.h"
 
-EnemyTank::EnemyTank(QGraphicsItem *parent):
-     BaseTank(2, 30, 30, 10, QPointF(20,25)), //int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF gunPoint
-        rng(std::mt19937(QRandomGenerator::global()->generate())),
-        stop(false), follow(false), lookA(false)
+extern Game*game;
+
+EnemyTank::EnemyTank(int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF gunPoint, int Points):
+     BaseTank(id, HPMAX, HP, SPEED, gunPoint), //int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF gunPoint
+     rng(std::mt19937(QRandomGenerator::global()->generate())),
+     stop(false), follow(false), lookA(false),
+     points(Points)
 {
 
     std::uniform_int_distribution<int> u(0,100);
-    //qDebug()<<"random: "<< u(rng);
+
 
     setPixmap(QPixmap(":/images/enemytank.png"));
     setTransformOriginPoint(getWidth()/2, getHeight()/2);
@@ -24,6 +29,7 @@ EnemyTank::EnemyTank(QGraphicsItem *parent):
     //set detection line
     QLineF nL(this->transformOriginPoint(), QPointF(transformOriginPoint().rx(), transformOriginPoint().ry()-500));
     nLine = new QGraphicsLineItem(nL, this);
+    nLine->setVisible(false);
     //set bullet
     reload(Qt::Key_1);
 
@@ -32,11 +38,6 @@ EnemyTank::EnemyTank(QGraphicsItem *parent):
 
 
 }
-
-/*void EnemyTank::goDest()
-{
-    moveTim->start();
-}*/
 
 void EnemyTank::choseDest()
 {
@@ -129,8 +130,6 @@ void EnemyTank::choseDest()
            destination.setX(pos().rx()+mod);
        }
    }
-
-   //goDest();
    moveTim->start();
 }
 
@@ -166,20 +165,54 @@ bool EnemyTank::playerDetect()
    stop = false; // if enemy tank not detect player again, enemytank start moving
    QList<QGraphicsItem*> colliding_item = nLine->collidingItems();
 
-    std::for_each(colliding_item.begin(), colliding_item.end(), [this](auto i){
+   int nearest_block_dist = 9998;
+   int player_dist = 0;
+   QPointF new_dest;
+
+    //get player-enemy distans and nearest enemy-block dist (from gun direction)
+    std::for_each(colliding_item.begin(), colliding_item.end(), [this, &nearest_block_dist, &player_dist, &new_dest](auto i){
         if(typeid(*i) == typeid(PlayerTank))
         {
-            //stop moving and fire if detect palyer
-            this->fire();
-            stop = true;
-            follow = true;
-            destination = i->pos();
-            lookA = true;
-            return true;
+            QLineF line(dynamic_cast<PlayerTank*>(i)->pos(), this->pos());
+            player_dist = line.length();
+            new_dest = i->pos();
+
+        }
+        else if(dynamic_cast<BaseBlock*>(i) != nullptr)
+        {
+            QLineF line(dynamic_cast<BaseBlock*>(i)->pos(), this->pos());
+            if(line.length()<nearest_block_dist) nearest_block_dist = line.length();
         }
 
     });
-    return false;
+
+        //if player is overlap by a block, enemy not detect player, return false
+        if(player_dist !=0 && player_dist<nearest_block_dist)
+        {
+            this->fire();
+            stop = true;
+            follow = true;
+            destination = new_dest;
+            lookA = true;
+            return true;
+
+        }
+        return false;
+}
+
+void EnemyTank::takeDamage(int8_t damage)
+{
+    hp-=damage;
+    if(hp<=0)
+    {
+            scene()->removeItem(this);
+            game->scoreMod(getPoints());
+            delete this;
+            return;
+    }
+    setPixmap((QPixmap(":/images/enemytankhit.png")));
+    BaseTank::takeDamage(damage);
+
 }
 
 void EnemyTank::moveSlot()
@@ -192,8 +225,6 @@ void EnemyTank::moveSlot()
     playerDetect(); //sets destination to last player position
 
     QLineF ln(pos(), destination);
-    //qDebug()<<ln.length();
-    //qDebug()<<lookA;
     if(follow)
     {
         follow = false;
@@ -202,7 +233,6 @@ void EnemyTank::moveSlot()
     //if tank reach dest point or hit the wall, chose new dest
     else if(ln.length()<30 || (lastPos == pos() && !lookA)) //chose new dest and dir if tank raech dest or tank stack on obsticle
     {
-        //qDebug()<<"blip";
         lookA = false;
         destination = pos();
         moveTim->stop();
@@ -211,12 +241,17 @@ void EnemyTank::moveSlot()
     }
 }
 
+void EnemyTank::setPmap()
+{
+    setPixmap(QPixmap(":/images/enemytank.png"));
+}
+
 void EnemyTank::lookAround()
 {
-    //qDebug()<<"blip";
+
     if(this->rotation() == 180 || this->rotation()== 0)
     {
-        //qDebug()<<"180||0";
+
         this->setRotation(-90);
         dir = Qt::Key_A;
         if(playerDetect()) return;
@@ -227,7 +262,7 @@ void EnemyTank::lookAround()
     }
     else if(this->rotation() == 90 || this->rotation()== -90)
     {
-        //qDebug()<<"-90||90";
+
         this->setRotation(0);
         dir = Qt::Key_W;
         if(playerDetect()) return;

@@ -6,6 +6,8 @@
 #include "normalbullet.h"
 #include "playertank.h"
 
+/*class intended to create and add to scene Block object based on ID and pos*/
+
 class BlockFactory
 {
 public:

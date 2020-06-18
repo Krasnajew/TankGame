@@ -3,6 +3,8 @@
 #include <QGraphicsPolygonItem>
 #include <QObject>
 
+/*Effect of reach target by superbullet*/
+
 class Boom: public QObject, public QGraphicsPolygonItem
 {
     Q_OBJECT

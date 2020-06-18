@@ -36,7 +36,7 @@ Boom::Boom(QPointF pos, int8_t DAMAGE):
 
     QTimer *tim = new QTimer(this);
     connect(tim, &QTimer::timeout, this, &Boom::remove);
-    tim->start(500);
+    tim->start(300);
 
 }
 
@@ -71,7 +71,5 @@ void Boom::collision()
         }
     } );
 
-
-    //qDebug()<<colliding_item.size();
 
 }

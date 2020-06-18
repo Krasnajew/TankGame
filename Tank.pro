@@ -22,15 +22,16 @@ SOURCES += \
     basetank.cpp \
     blockfactory.cpp \
     boom.cpp \
+    button.cpp \
     concreteblock.cpp \
     dirtblock.cpp \
-    editor.cpp \
     enemytank.cpp \
     main.cpp \
     game.cpp \
     normalbullet.cpp \
     playertank.cpp \
     progresbar.cpp \
+    sbenemytank.cpp \
     solidblock.cpp \
     superbullet.cpp
 
@@ -40,14 +41,15 @@ HEADERS += \
     basetank.h \
     blockfactory.h \
     boom.h \
+    button.h \
     concreteblock.h \
     dirtblock.h \
-    editor.h \
     enemytank.h \
     game.h \
     normalbullet.h \
     playertank.h \
     progresbar.h \
+    sbenemytank.h \
     solidblock.h \
     superbullet.h
 

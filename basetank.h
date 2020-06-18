@@ -1,13 +1,11 @@
 #ifndef BASETANK_H
 #define BASETANK_H
 
-//#include "gameobject.h"
 #include <QGraphicsPixmapItem>
 #include <QObject>
 #include "basebullet.h"
-//#include "game.h"
 
-//extern Game * game;
+/*Base class to playertank, enemytank and sbenemytank*/
 
 class BaseBullet;
 
@@ -16,11 +14,10 @@ class BaseTank: public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 public:
 
-    void fire();
+    void fire(); //create any of basebullet object
     void reload(Qt::Key key); //change type of bullet
     void move(Qt::Key dir); //move tank on the screen. Argument: up, down, right, left
-    virtual void takeDamage(int8_t damage);
-
+    virtual void takeDamage(int8_t damage); ////subtract damage from hp. If hp is =>0, remove object
     //getter
     int8_t getHeight() const {return height;};
     int8_t getWidth() const {return width;};
@@ -28,9 +25,9 @@ public:
     int8_t getHp_max() const {return hpMax;};
     int8_t getSpeed() const {return speed;};
 
-    //virtual void posAdd(qreal x, qreal y);
 public slots:
-    virtual void loadGun(); //set loaded true
+    virtual void loadGun(); //set loaded flag true
+    virtual void setPmap()=0; //set Pixmap
 
 protected:
     BaseTank(int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF gunPoint);
@@ -49,7 +46,7 @@ private:
     const int8_t width = 40;
 
 
-    bool collisionTest(); //return true if tank collide with something
+    bool collisionTest(); //testing if tank collide with something.
 
 };
 

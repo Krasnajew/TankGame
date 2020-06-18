@@ -9,7 +9,6 @@ SolidBlock::SolidBlock():
 {
 
     setRect(0, 0, getSize(), getSize());
-    //destructable = false;
     setBrush(QPixmap(":/images/SolidBlock.png"));
 }
 
@@ -17,6 +16,5 @@ void SolidBlock::createBlock(QPointF pos)
 {
     SolidBlock *block = new SolidBlock();
     block->setPos(pos);
-    //scene()->addItem(block);
     game->scene->addItem(block);
 }

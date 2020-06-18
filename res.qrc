@@ -8,5 +8,8 @@
         <file>SolidBlock.png</file>
         <file>boom.png</file>
         <file>enemytank.png</file>
+        <file>SBtank.png</file>
+        <file>hittank.png</file>
+        <file>enemytankhit.png</file>
     </qresource>
 </RCC>

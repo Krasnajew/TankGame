@@ -9,13 +9,16 @@
 #include "blockfactory.h"
 #include "concreteblock.h"
 #include "enemytank.h"
-
+#include "sbenemytank.h"
+#include "button.h"
+#include <QGraphicsRectItem>
 
 int8_t BaseBlock::size = 60;
 
 Game::Game(QGraphicsView *parent)
     : QGraphicsView(parent)
 {
+    score = 0;
     //set scene
     scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, getMapWidth(), getMapHeight()+30);
@@ -37,9 +40,11 @@ void Game::keyPressEvent(QKeyEvent *event)
     break;
     case Qt::Key_1:
         player->reload(Qt::Key_1 );
+        setWeaponText("Weapon: Normal Bullet");
     break;
     case Qt::Key_2:
         player->reload(Qt::Key_2);
+        setWeaponText("Weapon: Super Bullet");
     break;
     case Qt::Key_W:
         player->setRotation(0);
@@ -60,93 +65,69 @@ void Game::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Space:
         player->fire();
     break;
-    case Qt::Key_Q: //change bullet
-        static int i = 0;
-        QGraphicsScene *scene2 = new QGraphicsScene(this);
-        scene2->setSceneRect(0, 0, 200, 200);
-        setFixedSize(200, 200);
-        setScene(scene2);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-        setScene(scene2);
-
-        i++;
-
-        if(i>1){
-            //scene = new QGraphicsScene(this);
-            scene->setSceneRect(0, 0, getMapWidth(), getMapHeight());
-            setFixedSize(getMapWidth(), getMapHeight());
-            setScene(scene);
-            i=0;
-
-        }
-    break;
-
-
+    }
 }
+
+void Game::menuDisplay()
+{
+    scene->clear();
+    //add game title
+    QGraphicsTextItem* title = new QGraphicsTextItem(QString("Tank Game"));
+    QFont font("times new roman", 50);
+    title->setFont(font);
+    int txPos = this->width()/2 - title->boundingRect().width()/2;
+    int tyPos = 200;
+    title->setPos(txPos, tyPos);
+    scene->addItem(title);
+
+    //add menu button
+    Button* play = new Button(QString("Play"));
+    int bxPos = this->width()/2 - play->boundingRect().width()/2;
+    int byPos = 315;
+    play->setPos(bxPos, byPos);
+    connect(play, &Button::clicked, this, &Game::start);
+    scene->addItem(play);
+
+    Button* control = new Button(QString("Control"));
+    int cxPos = this->width()/2 - control->boundingRect().width()/2;
+    int cyPos = 400;
+    control->setPos(cxPos, cyPos);
+    connect(control, &Button::clicked, this, &Game::controlDisplay);
+    scene->addItem(control);
+
+    Button* quit = new Button(QString("Quit"));
+    int qxPos = this->width()/2 - quit->boundingRect().width()/2;
+    int qyPos = 475;
+    quit->setPos(qxPos, qyPos);
+    connect(quit, &Button::clicked, this, &Game::close);
+    scene->addItem(quit);
+
 }
 
 void Game::createMap()
 {
-   //map of ID
-   /*QVector<QVector<int8_t>> d = {
-       {22, 22 ,22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 23, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 22 ,22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,},
+   //example game map
 
-   };*/
    QVector<QVector<int8_t>> d = {
-       {22, 22 ,22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 21, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 21, 0,0, 0, 0, 0,0, 0, 23, 22,},
-       {22, 0, 0, 0, 21, 21, 0, 0,0, 21, 0, 23,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 21, 21, 0, 0,0, 21, 0, 23,23, 23, 23, 23,23, 0, 0, 22,},
-       {22, 0, 0, 0, 21, 21, 0, 0,0, 0, 21, 23,21, 21, 21, 21,21, 23, 23, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,23, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 0, 0, 0, 0, 0, 22,0, 0, 0, 0,23, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 0, 0, 0, 0, 0, 0,0, 0, 23, 23,23, 0, 0, 0,0, 0, 0, 22,},
-      {22, 0, 23, 0, 0, 22, 22, 22,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 21,21, 21, 21, 21,23, 23, 0, 22,},
-      {22, 0, 23, 0, 0, 22, 22, 22,22, 0, 23, 23,23, 23, 23, 23,23, 23, 23, 22,},
-      {22, 0, 23, 0, 0, 0, 0, 22,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 22,},
-       {22, 22 ,22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,22, 22, 22, 22,},
+      {22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,},
+      {22,0 ,0 ,0 ,21,21,21,0 ,0 ,22,0 ,0 ,0 ,0 ,0 ,0 ,0 , 0, 0,22,},
+      {22,0 ,0 ,0 ,23,21,22,0 ,22,22 ,0 ,0 ,0 ,0 ,0 ,0 ,0 , 0, 0,22,},
+      {22,0 ,0 ,0 ,23,21,22,21,21,22,23,0 , 0, 0, 22, 0, 0, 0, 0,22,},
+      {22,0 ,0 ,0 ,23,21,22, 0, 0,22,23,23,23,23,23,23,23,23,23,22,},
+      {22, 0, 0, 0,23,21,22, 0, 0,22,23,23,23,23,23,23,23,23,23,22,},
+      {22, 0, 0, 0,23,21,22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22,},
+      {22,23,23,23,23,21,22, 0,22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22,},
+      {22,23,21,21,21,21,23, 0, 0, 0,22,22,22,22,22,22,22,22,21,22,},
+      {22,21,21,21,21,23,22, 0,22, 0,22,21, 0, 0, 0, 0, 0, 0, 0,22,},
+      {22,21,21,21,21,22,22, 0,22, 0,22,21,21,22,22,22,22,22,21,22,},
+      {22, 0,22,22,22, 0, 0, 0, 0, 0,22,21,22,22,22,22,22,22,21,22,},
+      {22, 0,22, 0, 0, 0, 0,22, 0, 0,22,21, 0, 0, 0, 0,21,21,21,22,},
+      {22, 0,22, 0, 0, 0, 0, 0, 0, 0,21,21, 0, 0, 0, 0,21,21,21,22,},
+      {22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,},
 
    };
 
-    /*QVector<QVector<int8_t>> d = {
-        {21, 21 ,21, 21,21, 21, 21, 21,21, 21, 21, 21,21, 21, 21, 21,21, 21, 21, 21,},
-        {21, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 23, 21,},
-        {21, 0, 0, 0, 0, 0, 23, 0,0, 0, 0, 0,23, 0, 23, 0,0, 0, 23, 21,},
-        {21, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 23, 21,},
-        {21, 0, 23, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 0, 23, 21,},
-        {21, 0, 23, 0, 0, 0, 0, 21,21, 21, 0, 0,21, 21, 21, 0,23, 0, 0, 21,},
-        {21, 0, 0, 0, 23, 0, 0, 21,21, 21, 0, 0,21, 21, 21, 0,0, 23, 0, 21,},
-        {21, 0, 0, 0, 0, 0, 0, 21,21, 21, 0, 0,21, 21, 21, 23,0, 23, 0, 21,}, //this line too
-        {21, 0, 0, 0, 0, 0, 0, 0,0, 23, 0, 0,23, 0, 0, 0,23, 0, 0, 21,}, //to
-      {21, 0, 0, 0, 0, 23, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 23, 0, 21,}, //to
-        {21, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 21, 0,23, 0, 0, 21,}, //to
-       {21, 0, 23, 0, 0, 0, 0, 0,0, 23, 0, 0,0, 0, 21, 0,23, 0, 0, 21,}, //game crash when destroy 23 block in this line
-       {21, 0, 0, 0, 0, 23, 0, 0,0, 0, 0, 0,0, 0, 0, 0,0, 23, 0, 21,}, //to
-        {21, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0,0, 0, 0, 23,0, 23, 0, 21,}, //to
-        {21, 21 ,21, 21,21, 21, 21, 21,21, 21, 21, 21,21, 21, 21, 21,21, 21, 21, 21,}, //to
-
-    };*/
    map = new QVector<QVector<int8_t>>(d);
-   //qDebug()<<map[0][0];
 
    int8_t column = 0;
    int8_t row = 0;
@@ -165,6 +146,57 @@ void Game::createMap()
 
 }
 
+void Game::controlDisplay()
+{
+    scene->clear();
+
+    QGraphicsTextItem* control = new QGraphicsTextItem(QString("Control:"));
+    QFont font1("comic sans", 50);
+    control->setFont(font1);
+    int txPos = this->width()/2 - control->boundingRect().width()/2;
+    int tyPos = 70;
+    control->setPos(txPos, tyPos);
+    scene->addItem(control);
+
+    QFont font2("comic sans", 20);
+    QGraphicsTextItem* moveText = new QGraphicsTextItem(QString("Move - W, S, A, D"));
+    int mxPos = this->width()/2 - control->boundingRect().width()/2;
+    int myPos = 250;
+    moveText->setPos(mxPos, myPos);
+    moveText->setFont(font2);
+    scene->addItem(moveText);
+
+    QGraphicsTextItem* shotText = new QGraphicsTextItem(QString("Shot - SPACEBAR"));
+    int sxPos = this->width()/2 - control->boundingRect().width()/2;
+    int syPos = 350;
+    shotText->setPos(sxPos, syPos);
+    shotText->setFont(font2);
+    scene->addItem(shotText);
+
+    QGraphicsTextItem* weapon1Text = new QGraphicsTextItem(QString("Normal Bullet - 1"));
+    int wxPos = this->width()/2 - control->boundingRect().width()/2;
+    int wyPos = 450;
+    weapon1Text->setPos(wxPos, wyPos);
+    weapon1Text->setFont(font2);
+    scene->addItem(weapon1Text);
+
+    QGraphicsTextItem* weapon2Text = new QGraphicsTextItem(QString("Super Bullet - 2"));
+    int xxPos = this->width()/2 - control->boundingRect().width()/2;
+    int xyPos = 550;
+    weapon2Text->setPos(xxPos, xyPos);
+    weapon2Text->setFont(font2);
+    scene->addItem(weapon2Text);
+
+    //add back button
+    Button* backButton = new Button(QString("Back to menu"));
+    int bxPos = this->width()/2 - control->boundingRect().width()/2;
+    int byPos = 700;
+    backButton->setPos(bxPos, byPos);
+    connect(backButton, &Button::clicked, this, &Game::menuDisplay);
+    scene->addItem(backButton);
+
+}
+
 void Game::reloadBarTim()
 {
     setReloadBar(0);
@@ -180,11 +212,30 @@ void Game::setHpBar(int8_t fill)
     hpBar->setFill(fill);
 }
 
+void Game::setWeaponText(const QString text)
+{
+    weaponText->setPlainText(text);
+}
+
+void Game::scoreMod(int p)
+{
+    score +=p;
+    scoreText->setPlainText(QString("Score: " + QString::number(score)));
+    if(score >= 140)
+    {
+        gameOver();
+    }
+}
+
 void Game::start()
 {
-    //set Player
+    //clear scene
+    scene->clear();
+    score = 0;
+    //set Player //QPointF(220,190)
     player = new PlayerTank();
-    player->setPos(100, 100);
+    connect(player, &PlayerTank::yourDead, this, &Game::gameOver);
+    player->setPos(70, 770);
     scene->addItem(player);
     player->reload(Qt::Key_1); //gear up normal bullet
 
@@ -204,21 +255,112 @@ void Game::start()
     hpText->setPos(300, 900);
     scene->addItem(hpText);
 
+    //set weapon text
+    weaponText = new QGraphicsTextItem(QString("Weapon: Normal Bullet"));
+    QFont font2("Tokyo", 15);
+    weaponText->setFont(font2);
+    weaponText->setPos(600, 900);
+    scene->addItem(weaponText);
+
+    //set score text
+    scoreText = new QGraphicsTextItem(QString("Score: 0"));
+    QFont font3("Tokyo", 15);
+    scoreText->setFont(font3);
+    scoreText->setPos(900, 900);
+    scene->addItem(scoreText);
+
+    //create map of block
     createBlockFactory();
     createMap();
+    //add Enemy
+    addEnemy();
+}
 
-    //set Enemy
+void Game::gameOver()
+{
+    //drawPanel(0,0,1024,768, Qt::black, 0.65);
+    QGraphicsRectItem *panel = new QGraphicsRectItem;
+    panel->setRect(100,100,1024, 768);
+    panel->setOpacity(0.5);
+    QBrush brush;
+    brush.setColor(Qt::black);
+    brush.setStyle(Qt::SolidPattern);
+    panel->setBrush(brush);
+    scene->addItem(panel);
+
+    //add game title
+    QGraphicsTextItem* title = new QGraphicsTextItem(QString("Game Over!"));
+    QFont titleFont("comic sans", 50);
+    title->setFont(titleFont);
+    int txPos = this->width()/2 - title->boundingRect().width()/2;
+    int tyPos = 350;
+    title->setPos(txPos, tyPos);
+    scene->addItem(title);
+
+    //add replay
+    Button* replay = new Button(QString("Play again?"));
+    int bxPos = this->width()/2 - replay->boundingRect().width()/2;
+    int byPos = 465;
+    replay->setPos(bxPos, byPos);
+    connect(replay, &Button::clicked, this, &Game::start);
+    scene->addItem(replay);
+
+    Button* quit = new Button(QString("Quit"));
+    int qxPos = this->width()/2 - quit->boundingRect().width()/2;
+    int qyPos = 545;
+    quit->setPos(qxPos, qyPos);
+    connect(quit, &Button::clicked, this, &Game::close);
+    scene->addItem(quit);
+
+
+}
+
+void Game::addEnemy()
+{
+
     EnemyTank* enemy = new EnemyTank();
-    enemy->setPos(QPointF(200, 200));
+    enemy->setPos(QPointF(150, 140));
     scene->addItem(enemy);
 
-    /*EnemyTank* enemy2 = new EnemyTank();
-    enemy2->setPos(QPointF(500, 100));
+    EnemyTank* enemy2 = new EnemyTank();
+    enemy2->setPos(QPointF(80, 330));
     scene->addItem(enemy2);
 
     EnemyTank* enemy3 = new EnemyTank();
-    enemy3->setPos(QPointF(200, 300));
-    scene->addItem(enemy3);*/
+    enemy3->setPos(QPointF(420,70));
+    scene->addItem(enemy3);
+
+    EnemyTank* enemy5 = new EnemyTank();
+    enemy5->setPos(QPointF(690,400));
+    scene->addItem(enemy5);
+
+    EnemyTank* enemy6 = new EnemyTank();
+    enemy6->setPos(QPointF(1030,400));
+    scene->addItem(enemy6);
+
+    SBEnemyTank* SBenemy = new SBEnemyTank();
+    SBenemy->setPos(QPointF(430,310));
+    scene->addItem(SBenemy);
+
+    EnemyTank* enemy7 = new EnemyTank();
+    enemy7->setPos(QPointF(700,110));
+    scene->addItem(enemy7);
+
+    EnemyTank* enemy8 = new EnemyTank();
+    enemy8->setPos(QPointF(660,110) );
+    scene->addItem(enemy8);
+
+    EnemyTank* enemy9 = new EnemyTank();
+    enemy9->setPos(QPointF(1040,110));
+    scene->addItem(enemy9);
+
+    SBEnemyTank* SBenemy2 = new SBEnemyTank();
+    SBenemy2->setPos(QPointF(810,740));
+    scene->addItem(SBenemy2);
+
+    SBEnemyTank* SBenemy3 = new SBEnemyTank();
+    SBenemy3->setPos(QPointF(870,550));
+    scene->addItem(SBenemy3);
 }
 
 

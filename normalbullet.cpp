@@ -11,8 +11,6 @@ NormalBullet::NormalBullet():
 {
     setRect(0, 0, 3, 7);
     setBrush(Qt::black);
-    //setPixmap(QPixmap(":/images/NormalBullet.png"));
-
 }
 
 void NormalBullet::shot(QPointF coord, qreal angle)
@@ -25,8 +23,6 @@ void NormalBullet::shot(QPointF coord, qreal angle)
     QTimer *tim = new QTimer();
     connect(tim, &QTimer::timeout, bullet, &NormalBullet::move);
     tim->start(100);
-
-    //scene()->addItem(bullet);
     game->scene->addItem(bullet);
 }
 

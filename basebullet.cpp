@@ -29,31 +29,36 @@ bool BaseBullet::collisionTest()
 
         std::for_each(colliding_item.begin(), colliding_item.end(), [&flag, this](auto i){
 
-            if(dynamic_cast<BaseBlock*>(i) != nullptr){
-                dynamic_cast<BaseBlock*>(i)->takeDamage(this->getDamage());
-                auto p = i->pos() + QPointF(-45, -45);
-                this->kaboom(p);
-                flag = true;
-            }
-            else if(dynamic_cast<BaseBullet*>(i) != nullptr){
+            if(flag == false)
+            {
+                if(dynamic_cast<BaseBlock*>(i) != nullptr){
+                    dynamic_cast<BaseBlock*>(i)->takeDamage(this->getDamage());
+                    auto p = i->pos() + QPointF(-45, -45);
+                    this->kaboom(p);
+                    flag = true;
+                }
+                else if(dynamic_cast<BaseBullet*>(i) != nullptr){
 
-                flag = true;
+                    flag = true;
+                }
+                else if(dynamic_cast<EnemyTank*>(i) != nullptr)
+                {
+                    dynamic_cast<EnemyTank*>(i)->takeDamage(this->getDamage());
+                    auto p = i->pos() + QPointF(-45, -45);
+                    this->kaboom(p);
+                    flag = true;
+                }
+                else if(dynamic_cast<PlayerTank*>(i) != nullptr)
+                {
+                    dynamic_cast<PlayerTank*>(i)->takeDamage(this->getDamage());
+                    auto p = i->pos() + QPointF(-45, -45);
+                    this->kaboom(p);
+                    //dynamic_cast<PlayerTank*>(i)->hpBarMod();
+                    flag = true;
+                }
             }
-            else if(dynamic_cast<EnemyTank*>(i) != nullptr)
-            {
-                dynamic_cast<EnemyTank*>(i)->takeDamage(this->getDamage());
-                auto p = i->pos() + QPointF(-45, -45);
-                this->kaboom(p);
-                flag = true;
-            }
-            else if(dynamic_cast<PlayerTank*>(i) != nullptr)
-            {
-                dynamic_cast<PlayerTank*>(i)->takeDamage(this->getDamage());
-                auto p = i->pos() + QPointF(-45, -45);
-                this->kaboom(p);
-                dynamic_cast<PlayerTank*>(i)->hpBarMod();
-                flag = true;
-            }
+
+
             //else if
 
         });
@@ -72,8 +77,6 @@ void BaseBullet::move()
    qreal angle = this->rotation();
    QPointF temp = pos();
 
-   //static int i = 0;
-
    if(angle==0) //move bullet acording to angle
    {
         setPos(x(), y()-speed);
@@ -91,12 +94,8 @@ void BaseBullet::move()
        setPos(x()-speed, y());
    }
 
-   //i++;
-
        if(collisionTest()) //check range
        {
-
-           //qDebug()<<"dzieje sie";
            game->getScene()->removeItem(this);
            delete this;
 

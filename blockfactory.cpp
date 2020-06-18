@@ -5,7 +5,7 @@ extern Game * game;
 BlockFactory::BlockFactory(std::vector<BaseBlock*> BL):
     blockList(BL)
 {
-    //createMap(0, QPoint(1, 1)); //test
+
 }
 
 void BlockFactory::createBlock(int8_t ID, QPointF pos)

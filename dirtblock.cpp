@@ -15,6 +15,7 @@ void DirtBlock::createBlock(QPointF pos)
 {
     DirtBlock *block = new DirtBlock();
     block->setPos(pos);
-    //scene()->addItem(block);
     game->scene->addItem(block);
+
+
 }

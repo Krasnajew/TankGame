@@ -25,8 +25,6 @@ void SuperBullet::shot(QPointF coord, qreal angle)
     connect(tim, &QTimer::timeout, bullet, &NormalBullet::move);
     tim->start(100);
 
-    //scene()->addItem(bullet);
-    //game->getScene()->addItem(bullet);
     game->scene->addItem(bullet);
 }
 
