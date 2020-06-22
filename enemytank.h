@@ -23,7 +23,7 @@ public:
     void setDir(Qt::Key d);
     bool playerDetect(); //detect player and respond (fire!). return true if detect player
     void takeDamage(int8_t damage) override;
-    void moveSlot();
+    void moveSlot(); //enemy tank move algoritm
     virtual void setPmap() override;
 private:
     void lookAround(); //tank look around to detect player.
@@ -34,14 +34,14 @@ private:
     Qt::Key backDir;
     QTimer *moveTim;
     QPointF temp;
-    QGraphicsLineItem *nLine; //north
+    QGraphicsLineItem *nLine;
 
     int points;
     bool stop; //stop movement if true;
     bool follow; //if true enemy follow player
     bool lookA; //if true, tank look around
 
-    std::mt19937 rng;
+    std::mt19937 rng; //pseudo random engine use to
 
 };
 

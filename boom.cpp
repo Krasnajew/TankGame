@@ -53,7 +53,7 @@ void Boom::collision()
 {
     QList<QGraphicsItem*> colliding_item = this->collidingItems();
 
-    std::for_each(colliding_item.begin(),colliding_item.end(), [this](auto i){
+    std::for_each(colliding_item.begin(),colliding_item.end(), [this](auto i){ //get all coliding_item, compare Boom damage to target hp, delete bullet
 
         if(dynamic_cast<BaseBlock*>(i) != nullptr)
         {

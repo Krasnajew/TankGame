@@ -3,6 +3,8 @@
 #include "basetank.h"
 #include <QKeyEvent>
 
+/*tank belong to player*/
+
 class PlayerTank: public BaseTank
 {
     Q_OBJECT

@@ -18,14 +18,9 @@ BaseBullet::BaseBullet(int8_t id, int8_t DAMAGE, int8_t SPEED, int8_t RANGE, int
 
 bool BaseBullet::collisionTest()
 {
-    //armCnt++;
     bool flag = false;
-    //get all coliding_item, compare bullet Damage to target hp, delete bullet
 
-
-        QList<QGraphicsItem*> colliding_item = this->collidingItems();
-    // qDebug()<<colliding_item.size();
-
+        QList<QGraphicsItem*> colliding_item = this->collidingItems(); //get all coliding_item, compare bullet Damage to target hp, delete bullet
 
         std::for_each(colliding_item.begin(), colliding_item.end(), [&flag, this](auto i){
 
@@ -53,13 +48,9 @@ bool BaseBullet::collisionTest()
                     dynamic_cast<PlayerTank*>(i)->takeDamage(this->getDamage());
                     auto p = i->pos() + QPointF(-45, -45);
                     this->kaboom(p);
-                    //dynamic_cast<PlayerTank*>(i)->hpBarMod();
                     flag = true;
                 }
             }
-
-
-            //else if
 
         });
         if(flag)

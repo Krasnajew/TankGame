@@ -113,7 +113,6 @@ void BaseTank::reload(Qt::Key key)
 
 void BaseTank::loadGun()
 {
-
     static int8_t i = 0;
         if(i>=9)
         {

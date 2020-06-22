@@ -34,35 +34,31 @@ void Game::keyPressEvent(QKeyEvent *event)
     static int t = 100;
     switch (event->key() )
     {
-    case Qt::Key_T: //test key
-        reload->setFill(t);
-          t -=10;
-    break;
-    case Qt::Key_1:
+    case Qt::Key_1: //set weapon to normal bullet
         player->reload(Qt::Key_1 );
         setWeaponText("Weapon: Normal Bullet");
     break;
-    case Qt::Key_2:
+    case Qt::Key_2: //set weapon to super bullet
         player->reload(Qt::Key_2);
         setWeaponText("Weapon: Super Bullet");
     break;
-    case Qt::Key_W:
+    case Qt::Key_W: //move up
         player->setRotation(0);
         player->move(Qt::Key_W);
     break;
-    case Qt::Key_S:
+    case Qt::Key_S: //move down
         player->setRotation(180);
         player->move(Qt::Key_S);
     break;
-    case Qt::Key_A:
+    case Qt::Key_A: //move left
         player->setRotation(-90);
         player->move(Qt::Key_A);
     break;
-    case Qt::Key_D:
+    case Qt::Key_D: //move right
         player->setRotation(90);
         player->move(Qt::Key_D);
     break;
-    case Qt::Key_Space:
+    case Qt::Key_Space: //shot
         player->fire();
     break;
     }
@@ -85,7 +81,7 @@ void Game::menuDisplay()
     int bxPos = this->width()/2 - play->boundingRect().width()/2;
     int byPos = 315;
     play->setPos(bxPos, byPos);
-    connect(play, &Button::clicked, this, &Game::start);
+    connect(play, &Button::clicked, this, &Game::start); //start the game
     scene->addItem(play);
 
     Button* control = new Button(QString("Control"));
@@ -106,9 +102,9 @@ void Game::menuDisplay()
 
 void Game::createMap()
 {
-   //example game map
 
-   QVector<QVector<int8_t>> d = {
+   //example game map. 0 - free space, 22 - solid block, 21 - dirt block, 23 - concrete block
+   QVector<QVector<int8_t>> map_template = {
       {22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,},
       {22,0 ,0 ,0 ,21,21,21,0 ,0 ,22,0 ,0 ,0 ,0 ,0 ,0 ,0 , 0, 0,22,},
       {22,0 ,0 ,0 ,23,21,22,0 ,22,22 ,0 ,0 ,0 ,0 ,0 ,0 ,0 , 0, 0,22,},
@@ -127,15 +123,15 @@ void Game::createMap()
 
    };
 
-   map = new QVector<QVector<int8_t>>(d);
+   map = new QVector<QVector<int8_t>>(map_template);
 
    int8_t column = 0;
    int8_t row = 0;
-   //create and add to scene acording to 2d vector of ID
+   //create and add to scene block objects according to 'map_template'
    std::for_each(map[0].begin(), map[0].end(), [this, &column, &row](auto i){
        std::for_each(i.begin(), i.end(), [this, &row, &column](auto x){
-           if(x>=21 && x<=50){ //block ID range is: 21-50
-               blockFactory->createBlock(x, QPointF(row*60, column*60)); //60 is block size
+           if(x>=21 && x<=50){ //block ID range is range: 21-50
+               blockFactory->createBlock(x, QPointF(row*60, column*60)); //60 is a block size. createBlock create block object associate to passing ID, add it to scene in right position
            }
            row++;
        });
@@ -221,7 +217,7 @@ void Game::scoreMod(int p)
 {
     score +=p;
     scoreText->setPlainText(QString("Score: " + QString::number(score)));
-    if(score >= 140)
+    if(score >= 140) //140 is total amount of point for defeat all enemy
     {
         gameOver();
     }
@@ -229,7 +225,6 @@ void Game::scoreMod(int p)
 
 void Game::start()
 {
-    //clear scene
     scene->clear();
     score = 0;
     //set Player //QPointF(220,190)
@@ -297,7 +292,7 @@ void Game::gameOver()
     title->setPos(txPos, tyPos);
     scene->addItem(title);
 
-    //add replay
+    //add replay button
     Button* replay = new Button(QString("Play again?"));
     int bxPos = this->width()/2 - replay->boundingRect().width()/2;
     int byPos = 465;
@@ -305,6 +300,7 @@ void Game::gameOver()
     connect(replay, &Button::clicked, this, &Game::start);
     scene->addItem(replay);
 
+    //add quit button
     Button* quit = new Button(QString("Quit"));
     int qxPos = this->width()/2 - quit->boundingRect().width()/2;
     int qyPos = 545;
@@ -366,7 +362,7 @@ void Game::addEnemy()
 
 void Game::createBlockFactory()
 {
-    std::vector<BaseBlock*> temp;
+    std::vector<BaseBlock*> temp; //temp is vector of pointer to all kind of block in game. Base on that vector, BlockFactory create proper block
 
     DirtBlock *dr = new DirtBlock();
     SolidBlock *sd = new SolidBlock();

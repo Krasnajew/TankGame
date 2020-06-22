@@ -14,7 +14,7 @@ class BaseBlock: public QObject, public QGraphicsRectItem
 public:
     void remove(); //remove from scene, delete item
     virtual void takeDamage(int8_t damage); //subtract damage from hp. If hp is =>0, remove object
-    virtual void createBlock(QPointF pos)=0; //create new block, set position and add to scene
+    virtual void createBlock(QPointF pos)=0; //create new block, set position and add to scene.
     static int8_t getSize(){return size;};
     bool ifDestructable() const {return destructable;};
 protected:

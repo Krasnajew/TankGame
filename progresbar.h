@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsRectItem>
 
+//class provide red-green bar visualise ratio of some value np: hp/hp_max
 class ProgresBar
 {
 public:

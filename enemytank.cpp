@@ -15,11 +15,11 @@ EnemyTank::EnemyTank(int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF g
 
     std::uniform_int_distribution<int> u(0,100);
 
-
     setPixmap(QPixmap(":/images/enemytank.png"));
     setTransformOriginPoint(getWidth()/2, getHeight()/2);
 
     temp = QPointF(getWidth()/2+300, getHeight()/2);
+
     //set move Timer
     moveTim = new QTimer();
     moveTim->setInterval(100);
@@ -42,14 +42,14 @@ EnemyTank::EnemyTank(int8_t id, int8_t HPMAX, int8_t HP, int8_t SPEED, QPointF g
 void EnemyTank::choseDest()
 {
 
-    std::uniform_int_distribution<int> u(0,3);
+    std::uniform_int_distribution<int> u(0,3); //draw by lot move direction. 0 -> up, 1->down, 2->Left, 3->Right
     Qt::Key temp;
     bool flag = true;
 
     //draw by lot direction
     while(flag)
     {
-        int d = u(rng); //draw lots dir
+        int d = u(rng);
         switch(d)
         {
         case 0:
@@ -98,11 +98,11 @@ void EnemyTank::choseDest()
     break;
     }
 
-   //draw by lot destination point
+   //draw by lot lenth from start to destination point
    std::uniform_int_distribution<int> p(100, 500);
    int mod = p(rng);
 
-   //dest point depend on dir
+   //calculate dest point depend on dir
    if(dir == Qt::Key_W || dir == Qt::Key_S)
    {
        destination.setX(pos().rx());
